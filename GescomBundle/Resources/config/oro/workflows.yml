@@ -1,0 +1,38 @@
+workflows:
+
+    #######################
+    # WORKFLOWS COMMANDES #
+    #######################
+
+    order_bdc:
+        entity: Oro\Bundle\OrderBundle\Entity\Order
+        entity_attribute: order
+        start_step: s_start
+        defaults:
+            active: false
+        exclusive_active_groups: [gescom_order]
+        steps_display_ordered: true
+        force_autostart: false
+        exclusive_record_groups:
+            - unique_run
+
+
+    #order_direct:
+    #    entity: Oro\Bundle\MagentoBundle\Entity\Order
+    #    entity_attribute: order
+    #    start_step: s_create_order
+    #    defaults:
+    #        active: false
+    #    exclusive_active_groups: [gescom_order]
+    #    steps_display_ordered: true
+    #    force_autostart: false
+    #    exclusive_record_groups:
+    #        - unique_run
+
+
+
+
+imports:
+
+    - { resource: 'workflows/order/order_bdc.yml' }
+

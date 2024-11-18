@@ -1,0 +1,53 @@
+oro:
+    workflow:
+
+        order_bdc:
+            label: 'Purchase order workflow'
+
+            attribute:
+                reference_transaction:
+                    label: 'Reference'
+                montant_transaction:
+                    label: 'Amount'
+                type_transaction:
+                    label: 'Payment mode'
+
+            step:
+                s_start:
+                    label: 'order creation'
+                s_workflow_started:
+                    label: 'Initialization'
+                s_bdc_valide:
+                    label: 'Purchase order validated'
+                s_facture:
+                    label: 'Order invoiced'
+                s_commande_annulee:
+                    label: 'Order cancelled'
+                s_commande_fermee:
+                    label: 'Order closed'
+                s_paiement_partiel:
+                    label: 'Partially paid'
+                s_commande_avoir:
+                    label: 'Credit generated'
+
+
+            transition:
+                t_start:
+                    label: 'Initialization'
+                t_validation_bdc:
+                    label: 'Validate the purchase order'
+                t_envoi_facture:
+                    label: 'Send invoice'
+                t_facturation:
+                    label: 'Invoice'
+                t_envoi_bdc:
+                    label: 'Send purchase order'
+                t_paiement_partiel:
+                    label: 'Partial payment'
+                t_paiement_solde:
+                    label: 'Full payment'
+                t_fermer_commande:
+                    label: 'Close order'
+                t_annulation:
+                    label: 'Cancel order'
+

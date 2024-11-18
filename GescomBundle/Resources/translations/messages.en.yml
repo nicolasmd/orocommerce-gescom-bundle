@@ -1,0 +1,12 @@
+oro:
+    order:
+        payment_due_date:
+            label: 'Payment due date'
+        due_amount:
+            label: 'Due amount'
+
+    payment:
+        paymenttransaction:
+            types:
+                payment:
+                    label: 'Payment'

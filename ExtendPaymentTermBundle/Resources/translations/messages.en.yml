@@ -1,0 +1,16 @@
+oro:
+    paymentterm:
+        days_before_payment:
+            label: "Payment deadline (days)"
+        end_of_month:
+            label: "End of month"
+        grouped_billing:
+            label: "Bulk Billing"
+        billing_day:
+            label: "Billing day"
+        down_payment:
+            label: "Deposit"
+        quote_mentions:
+            label: "Mention on quotes"
+        invoice_mentions:
+            label: "Mention on invoices"

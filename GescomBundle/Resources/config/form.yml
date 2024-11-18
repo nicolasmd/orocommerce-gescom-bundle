@@ -1,0 +1,8 @@
+parameters:
+    nmdev_gescom.form.type.transaction.class: Nmdev\Bundle\GescomBundle\Form\Type\TransactionType
+    
+services:
+    gescom.form.type.transaction:
+        class: %nmdev_gescom.form.type.transaction.class%
+        tags:
+            - { name: form.type, alias: nmdev_gescombundle_transaction }

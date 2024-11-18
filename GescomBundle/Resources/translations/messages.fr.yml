@@ -1,0 +1,12 @@
+oro:
+    order:
+        payment_due_date:
+            label: 'Echéance de paiement'
+        due_amount:
+            label: 'Montant restant dû'
+
+    payment:
+        paymenttransaction:
+            types:
+                payment:
+                    label: 'Paiement'

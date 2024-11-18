@@ -1,0 +1,4 @@
+nmdev_gescom_bundle:
+    resource: "@NmdevGescomBundle/Controller"
+    type: annotation
+    prefix: /gescom

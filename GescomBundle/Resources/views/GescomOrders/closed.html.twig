@@ -1,0 +1,16 @@
+{% extends 'OroUIBundle:actions:index.html.twig' %}
+{% import 'OroUIBundle::macros.html.twig' as UI %}
+{% set params = {actionsHideCount: 10, cellActionsHideCount: 10} %}
+
+{% set pageTitle = 'Commandes archivées' %}
+
+{% block navButtons %}
+    {% if is_granted('oro_order_create') %}
+        <div class="btn-group">
+            {{ UI.addButton({
+                'path': path('oro_order_create'),
+                'entity_label': 'oro.order.entity_label'|trans
+            }) }}
+        </div>
+    {% endif %}
+{% endblock %}

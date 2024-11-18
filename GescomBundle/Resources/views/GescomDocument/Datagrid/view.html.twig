@@ -1,0 +1,4 @@
+{% set identifier = record.getValue('identifier') %}
+{% set documentId = record.getValue('id') %}
+
+<a href="{{ identifier }}.pdf" target="_blank">{{ identifier }}</a>

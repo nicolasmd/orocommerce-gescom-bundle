@@ -1,0 +1,11 @@
+@name = email_quote_relaunch
+@entityName = Oro\Bundle\SaleBundle\Entity\Quote
+@subject = Votre devis #{{ entity.id }} est toujours en attente
+@isSystem = 0
+@isEditable = 1
+
+Vous n'avez toujours pas validé votre devis #{{ entity.id }}.
+Pour rappel vous pouvez le consulter ici : <a
+href="{{ website_path('oro_sale_quote_frontend_view', { 'id': entity.id }, entity.website) }}">
+    {{ website_path('oro_sale_quote_frontend_view', { 'id': entity.id }, entity.website) }}
+</a>

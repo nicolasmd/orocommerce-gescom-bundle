@@ -1,0 +1,59 @@
+{% extends 'OroUIBundle:actions:update.html.twig' %}
+{% form_theme form with 'OroFormBundle:Form:fields.html.twig' %}
+
+{% if form.vars.value.id %}
+    {% set formAction = path('gescom.transaction_update', { 'id': form.vars.value.id }) %}
+{% else %}
+    {% set formAction = path('gescom.transaction_create') %}
+{% endif %}
+
+{% block navButtons %}
+    {{ UI.cancelButton(path('gescom.transaction_index')) }}
+    {% set html = UI.saveAndCloseButton() %}
+    {% if resource_granted('gescom.transaction_update') %}
+        {% set html = html ~ UI.saveAndStayButton() %}
+    {% endif %}
+    {{ UI.dropdownSaveButton({ 'html': html }) }}
+{% endblock navButtons %}
+
+{% block pageHeader %}
+    {% if form.vars.value.id %}
+        {% set breadcrumbs = {
+            'entity':      form.vars.value,
+            'indexPath':   path('gescom.transaction_index'),
+            'indexLabel': 'Transaction'|trans,
+            'entityTitle': form.vars.value.reference
+        } %}
+        {{ parent() }}
+    {% else %}
+        {% set title = 'oro.ui.create_entity'|trans({'%entityName%': 'Transaction'|trans}) %}
+        {% include 'OroUIBundle::page_title_block.html.twig' with { title: title } %}
+    {% endif %}
+{% endblock pageHeader %}
+
+{% block content_data %}
+    {% set id = 'server-edit' %}
+
+    {% set dataBlocks = [{
+            'title': 'General',
+            'class': 'active',
+            'subblocks': [{
+                'title': '',
+                'data': [
+                    form_row(form.payment_method),
+                    form_row(form.amount),
+                    form_row(form.reference),
+                    form_row(form.created_at),
+                    form_row(form.owner),
+                    form_row(form.entity_identifier),
+                ]
+            }]
+        }]
+    %}
+
+    {% set data = {
+        'formErrors': form_errors(form)? form_errors(form) : null,
+        'dataBlocks': dataBlocks,
+    } %}
+    {{ parent() }}
+{% endblock content_data %}

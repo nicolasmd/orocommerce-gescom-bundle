@@ -1,0 +1,29 @@
+{% extends 'OroUIBundle:actions:index.html.twig' %}
+{% import 'OroUIBundle::macros.html.twig' as UI %}
+{% set gridName = 'gescom-transactions-grid' %}
+{% set pageTitle = 'Transactions' %}
+
+{% block navButtons %}
+    <div class="btn-group">
+        {{ UI.clientButton({
+            'dataUrl' : path('gescom.transaction_create', { }),
+            'label': 'Enregistrer une transaction'|trans,
+            'iCss': 'fa-money',
+            'widget' : {
+                'type' : 'dialog',
+                'multiple' : true,
+                'options' : {
+                    'alias': 'gescom.transaction_create',
+                    'dialogOptions' : {
+                        'title' : 'Enregistrer une transaction',
+                        'allowMaximize': false,
+                        'allowMinimize': false,
+                        'dblclick': 'maximize',
+                        'maximizedHeightDecreaseBy': 'minimize-bar',
+                        'width': 600
+                    }
+                }
+            }
+        }) }}
+    </div>
+{% endblock %}

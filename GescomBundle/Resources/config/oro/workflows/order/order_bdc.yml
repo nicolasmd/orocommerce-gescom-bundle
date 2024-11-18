@@ -1,0 +1,244 @@
+workflows:
+    order_bdc:
+
+        attributes:
+            reference_transaction:
+                type: string
+            montant_transaction:
+                type: float
+            type_transaction:
+                type: string
+                #choices:
+                #    cheque: Chèque
+                #    carte: Carte bleue
+                #    virement: Virement bancaire
+                #    especes: Espèces
+
+        steps:
+            s_start:
+                order: 10
+                allowed_transitions:
+                    - t_start
+
+            s_workflow_started:
+                order: 100
+                allowed_transitions:
+                    - t_validation_bdc
+                    - t_annulation
+
+            s_bdc_valide:
+                order: 200
+                allowed_transitions:
+                    - t_envoi_bdc
+                    - t_facturation
+                    - t_annulation
+                    
+            s_facture:
+                order: 310
+                allowed_transitions:
+                    - t_envoi_facture
+                    - t_paiement_partiel
+                    - t_paiement_solde
+                    - t_fermer_commande
+                    #- t_creation_avoir
+
+            s_paiement_partiel:
+                order: 400
+                allowed_transitions:
+                    - t_envoi_facture
+                    - t_paiement_partiel
+                    - t_paiement_solde
+                    - t_fermer_commande
+                    #- t_creation_avoir
+
+            s_commande_avoir:
+                order: 998
+                is_final: true
+
+            s_commande_annulee:
+                order: 999
+                is_final: true
+
+            s_commande_fermee:
+                order: 1000
+                is_final: true
+                allowed_transitions:
+                    - t_envoi_facture
+
+
+        transitions:
+
+            t_start:
+                step_to: s_workflow_started
+                transition_definition: t_start_definition
+                frontend_options:
+                    icon: 'icon-ok'
+                    class: 'btn-success'
+
+            t_validation_bdc:
+                step_to: s_bdc_valide
+                transition_definition: t_validation_bdc_definition
+                frontend_options:
+                    icon: 'icon-ok'
+                    class: 'btn-success'
+
+            t_annulation:
+                step_to: s_commande_annulee
+                transition_definition: t_annulation_definition
+                frontend_options:
+                    icon: 'icon-envelope'
+                    class: 'btn-danger'
+                
+            t_envoi_bdc:
+                step_to: s_bdc_valide
+                transition_definition: t_envoi_bdc_definition
+                frontend_options:
+                    icon: 'icon-envelope'
+                    class: 'btn-primary'
+                    confirmation:
+                        title: 'Veuillez confirmer'
+                        message: "Vous allez envoyer un email automatique au client contenant l'accès à son bon de commande. Voulez-vous continuer ?"
+
+            t_paiement_partiel:
+                step_to: s_paiement_partiel
+                transition_definition: t_paiement_partiel_definition
+                frontend_options:
+                    icon: 'icon-money'
+                    class: 'btn-warning'
+                form_options:
+                    attribute_fields:
+                        type_transaction:
+                            options:
+                                required: true
+                        reference_transaction:
+                            options:
+                                required: true
+                                constraints:
+                                    - Oro\Bundle\FormBundle\Validator\Constraints\HtmlNotBlank: ~
+                        montant_transaction:
+                            options:
+                                required: true
+                                constraints:
+                                    - Oro\Bundle\FormBundle\Validator\Constraints\HtmlNotBlank: ~
+
+
+            t_paiement_solde:
+                step_to: s_paiement_partiel
+                transition_definition: t_paiement_solde_definition
+                frontend_options:
+                    icon: 'icon-money'
+                    class: 'btn-success'
+                form_options:
+                    attribute_fields:
+                        type_transaction:
+                            options:
+                                required: true
+                        reference_transaction:
+                            options:
+                                required: true
+                                constraints:
+                                    - Oro\Bundle\FormBundle\Validator\Constraints\HtmlNotBlank: ~
+
+            t_facturation:
+                step_to: s_facture
+                transition_definition: t_facturation_definition
+                frontend_options:
+                    class: 'btn-success'
+                    icon: 'icon-file'
+                #form_options:
+                #    attribute_fields:
+                #        email_content:
+                #            form_type: oro_rich_text
+                #            options:
+                #                required: true
+                #                constraints:
+                #                    - Oro\Bundle\FormBundle\Validator\Constraints\HtmlNotBlank: ~
+                
+            t_envoi_facture:
+                step_to: s_facture
+                transition_definition: t_envoi_facture_definition
+                frontend_options:
+                    icon: 'icon-envelope'
+                    class: 'btn-primary'
+                    confirmation:
+                        title: 'Veuillez confirmer'
+                        message: "Vous allez envoyer un email automatique au client contenant l'accès à sa facture. Voulez-vous continuer ?"
+                    
+            t_fermer_commande:
+                step_to: s_commande_fermee
+                transition_definition: t_fermer_commande_definition
+                is_hidden: true
+
+
+        transition_definitions:
+
+            t_start_definition:
+                post_actions:
+                    - '@call_service_method':
+                          service: 'nmdev_gescom.payment_manager'
+                          method: generatePurchaseTransaction
+                          method_parameters: [$order]
+
+            t_validation_bdc_definition:
+                post_actions:
+                    - '@call_service_method':
+                          service: 'nmdev_gescom.order_manager'
+                          method: generatePoNumber
+                          method_parameters: [$order]
+                    - '@call_service_method':
+                          service: 'nmdev_gescom.payment_manager'
+                          method: validatePurchaseTransaction
+                          method_parameters: [$order]
+                    - '@call_service_method':
+                        service: 'nmdev_gescom.generate_document'
+                        method: createPurchaseInvoice
+                        method_parameters: [$order]
+
+
+            t_envoi_bdc_definition: []
+
+            t_envoi_facture_definition: []
+                #post_actions:
+                #    - '@call_service_method':
+                #        service: 'nmdev_gescom.generate_document'
+                #        method: createPurchaseInvoice
+                #        method_parameters: [$order]
+
+            t_facturation_definition:
+                post_actions:
+                    - '@call_service_method':
+                        service: 'nmdev_gescom.order_manager'
+                        method: generateInvoiceNumber
+                        method_parameters: [$order]
+                    - '@call_service_method':
+                          service: 'nmdev_gescom.payment_manager'
+                          method: setPaymentDueDate
+                          method_parameters: [$order]
+                    - '@call_service_method':
+                          service: 'nmdev_gescom.payment_manager'
+                          method: generateInvoiceTransaction
+                          method_parameters: [$order]
+
+            t_paiement_partiel_definition:
+                post_actions:
+                    - '@call_service_method':
+                          service: 'nmdev_gescom.payment_manager'
+                          method: savePartialPayment
+                          method_parameters: [$order, $reference_transaction, $type_transaction, $montant_transaction]
+
+            t_paiement_solde_definition:
+                post_actions:
+                    - '@call_service_method':
+                          service: 'nmdev_gescom.payment_manager'
+                          method: saveTotalPayment
+                          method_parameters: [$order, $reference_transaction, $type_transaction]
+
+            t_annulation_definition: []
+
+            t_fermer_commande_definition:
+                post_actions:
+                    - '@call_service_method':
+                          service: 'nmdev_gescom.payment_manager'
+                          method: closeOrder
+                          method_parameters: [$order]
+

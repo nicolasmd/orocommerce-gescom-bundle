@@ -1,0 +1,90 @@
+navigation:
+    menu_config:
+        items:
+            nmdev_gescom_tab:
+                label: 'Gestion commerciale'
+                uri: '#'
+                extras:
+                    icon: fa-money
+
+            nmdev_gescom_orders_tab:
+                label: 'Commandes'
+                uri: '#'
+
+            #gescom_orders_bdc_link:
+            #    label: Bons de commande
+            #    route: gescom.orders_bdc
+            #    extras:
+            #        icon: fa-handshake-o
+
+            gescom_orders_open_link:
+                label: Commandes en cours
+                route: gescom.orders_open
+                extras:
+                    icon: fa-folder-open
+
+            gescom_orders_closed_link:
+                label: Commandes archivées
+                route: gescom.orders_closed
+                extras:
+                    icon: fa-archive
+
+            #gescom_invoices_link:
+            #    label: Factures
+            #    route: gescom.invoices_index
+            #    extras:
+            #        icon: fa-newspaper-o
+
+            gescom_balances_link:
+                label: Soldes clients
+                route: gescom.balances_index
+                extras:
+                    icon: fa-balance-scale
+
+            gescom_payments_link:
+                label: Règlements en attente
+                route: gescom.invoices_pending
+                extras:
+                    icon: fa-money
+
+            gescom_transactions_link:
+                label: Transactions
+                route: gescom.transaction_index
+                extras:
+                    icon: fa-bank
+
+            gescom_document_tab:
+                uri: "#"
+                label: Documents
+
+            gescom_document_purchases_link:
+                label: Bons de commande
+                route: gescom.document_purchases
+
+            gescom_document_invoices_link:
+                label: Factures
+                route: gescom.document_invoices
+
+            gescom_sales_link:
+                label: Produits vendus
+                route: gescom.product_sales
+
+        tree:
+            application_menu:
+                children:
+                    nmdev_gescom_tab:
+                        children:
+                            #gescom_quotes_link: ~
+                            nmdev_gescom_orders_tab:
+                                children:
+                                    gescom_orders_open_link: ~
+                                    gescom_orders_closed_link: ~
+                            gescom_document_tab:
+                                children:
+                                    gescom_document_purchases_link: ~
+                                    gescom_document_invoices_link: ~
+                            #gescom_invoices_link: ~
+                            gescom_balances_link: ~
+                            gescom_payments_link: ~
+                            gescom_transactions_link: ~
+                            gescom_sales_link: ~

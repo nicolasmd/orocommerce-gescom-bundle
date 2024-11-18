@@ -1,0 +1,2 @@
+bundles:
+    - Nmdev\Bundle\ExtendPaymentTermBundle\NmdevExtendPaymentTermBundle

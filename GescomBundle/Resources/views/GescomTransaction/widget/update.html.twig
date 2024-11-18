@@ -1,0 +1,50 @@
+{% if form.vars.value.id %}
+    {% set formAction = path('gescom.transaction_update', { 'id': form.vars.value.id }) %}
+{% else %}
+    {% set formAction = path('gescom.transaction_create') %}
+{% endif %}
+
+<div class="widget-content">
+    {% if saved %}
+        <script type="text/javascript">
+        require(['oroui/js/widget-manager', 'oroui/js/mediator'],
+        function(widgetManager, mediator) {
+            widgetManager.getWidgetInstance({{ app.request.get('_wid')|json_encode|raw }}, function(widget) {
+                widget.trigger('formSave', {{ form.vars.value.id|json_encode|raw }});
+                 widget.remove();
+                 mediator.execute('refreshPage');
+            });
+        });
+        </script>
+    {% else %}
+        {% if not form.vars.valid and form_errors(form) %}
+        <div class="alert alert-error" style="margin:0">
+            <div class="message">
+                {{ form_errors(form) }}
+            </div>
+        </div>
+        {% endif %}
+
+        <form id="{{ form.vars.id }}" name="{{ form.vars.name }}"
+              action="{{ formAction }}"
+              method="post" class="form-register form-dialog">
+              {{ form_widget(form._token) }}
+            <fieldset class="form form-horizontal">
+                <div class="">
+                    <h4>Enregistrer une transaction</h4>
+                    {{ form_row(form.payment_method) }}
+                    {{ form_row(form.amount) }}
+                    {{ form_row(form.reference) }}
+                    {{ form_row(form.created_at) }}
+                    {{ form_row(form.owner) }}
+                    {{ form_row(form.entity_identifier) }}
+                </div>
+                <div class="widget-actions form-actions" style="display: none;">
+                    <button class="btn" type="reset">{{ 'Cancel'|trans }}</button>
+                    <button class="btn btn-primary" type="submit">{{ 'Save'|trans }}</button>
+                </div>
+            </fieldset>
+        </form>
+        {{ oro_form_js_validation(form) }}
+    {% endif %}
+</div>

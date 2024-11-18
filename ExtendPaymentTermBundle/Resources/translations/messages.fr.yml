@@ -1,0 +1,16 @@
+oro:
+    paymentterm:
+        days_before_payment:
+            label: "Délai de paiement (j)"
+        end_of_month:
+            label: "Fin de mois"
+        grouped_billing:
+            label: "Facturation groupée"
+        billing_day:
+            label: "Jour de facturation"
+        down_payment:
+            label: "Acompte (%)"
+        quote_mentions:
+            label: "Mention sur les devis"
+        invoice_mentions:
+            label: "Mention sur les factures"

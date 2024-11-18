@@ -1,0 +1,52 @@
+parameters:
+    nmdev_gescom.order.listener.class: Nmdev\Bundle\GescomBundle\Listener\OrderListener
+    nmdev_gescom.generate_document.class: Nmdev\Bundle\GescomBundle\Services\GenerateDocument
+    nmdev_gescom.order_manager.class: Nmdev\Bundle\GescomBundle\Services\OrderManager
+    nmdev_gescom.payment_manager.class: Nmdev\Bundle\GescomBundle\Services\PaymentManager
+    nmdev_gescom.workflow.listener.class: Nmdev\Bundle\GescomBundle\Listener\WorkflowStepColumnListener
+
+services:
+    # Listeners
+    nmdev_gescom.order.listener:
+        class: %nmdev_gescom.order.listener.class%
+        tags:
+            - { name: doctrine.event_listener, event: postPersist }
+            - { name: doctrine.event_listener, event: postUpdate }
+
+        arguments:
+            - '@service_container'
+            - '@doctrine.orm.entity_manager'
+            - '@oro_workflow.manager'
+            - '@nmdev_gescom.payment_manager'
+
+
+    #nmdev_gescom.workflow.listener:
+    #    class: %nmdev_gescom.workflow.listener.class%
+    #    arguments:
+    #        - '@oro_entity.doctrine_helper'
+    #        - '@oro_entity.orm.entity_class_resolver'
+    #        - '@oro_entity_config.provider.workflow'
+    #        - '@oro_workflow.registry.workflow_manager'
+    #    tags:
+    #        - { name: doctrine.event_listener, event: postPersist, lazy: true }
+
+    nmdev_gescom.generate_document:
+        class: %nmdev_gescom.generate_document.class%
+        arguments:
+            - '@service_container'
+            - '@doctrine.orm.entity_manager'
+            - '@oro_workflow.manager'
+
+    nmdev_gescom.order_manager:
+        class: %nmdev_gescom.order_manager.class%
+        arguments:
+            - '@service_container'
+            - '@doctrine.orm.entity_manager'
+            - '@oro_workflow.manager'
+
+    nmdev_gescom.payment_manager:
+        class: %nmdev_gescom.payment_manager.class%
+        arguments:
+            - '@service_container'
+            - '@doctrine.orm.entity_manager'
+            - '@oro_workflow.manager'

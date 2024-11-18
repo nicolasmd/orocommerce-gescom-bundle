@@ -1,0 +1,53 @@
+oro:
+    workflow:
+
+        order_bdc:
+            label: 'Workflow bon de commande'
+
+            attribute:
+                reference_transaction:
+                    label: 'Reférence'
+                montant_transaction:
+                    label: 'Montant'
+                type_transaction:
+                    label: 'Moyen de paiement'
+
+            step:
+                s_start:
+                    label: 'Création de la commande'
+                s_workflow_started:
+                    label: 'Initialisation'
+                s_bdc_valide:
+                    label: 'Bon de commande validé'
+                s_facture:
+                    label: 'Commande facturée'
+                s_commande_annulee:
+                    label: 'Commande annulée'
+                s_commande_fermee:
+                    label: 'Commande fermée'
+                s_paiement_partiel:
+                    label: 'Payé partiellement'
+                s_commande_avoir:
+                    label: 'Avoir généré'
+
+
+            transition:
+                t_start:
+                    label: 'Initialisation'
+                t_validation_bdc:
+                    label: 'Valider le bon de commande'
+                t_envoi_facture:
+                    label: 'Envoyer la facture'
+                t_facturation:
+                    label: 'Facturer la commande'
+                t_envoi_bdc:
+                    label: 'Envoyer le bon de commande'
+                t_paiement_partiel:
+                    label: 'Paiement partiel'
+                t_paiement_solde:
+                    label: 'Paiement solde'
+                t_fermer_commande:
+                    label: 'Fermer la commande'
+                t_annulation:
+                    label: 'Annuler la commande'
+

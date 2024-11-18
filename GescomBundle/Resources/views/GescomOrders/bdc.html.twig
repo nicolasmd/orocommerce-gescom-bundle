@@ -1,0 +1,13 @@
+{% extends 'OroUIBundle:actions:index.html.twig' %}
+{% import 'OroUIBundle::macros.html.twig' as UI %}
+{% set gridName = 'gescom-orders-bdc-grid' %}
+{% set pageTitle = 'Bons de commande' %}
+
+{% block navButtons %}
+    <div class="btn-group">
+        {{ UI.clientButton({
+            'dataUrl' : path('oro.order_create', { }),
+            'label': 'Créer une commande'|trans
+        }) }}
+    </div>
+{% endblock %}

@@ -1,0 +1,852 @@
+datagrids:
+
+    gescom-quotes-grid:
+        extends: quotes-grid
+
+    gescom-transactions-grid:
+        options:
+            entityHint: payment_transaction
+            export: true
+        source:
+            type: orm
+            query:
+                select:
+                    - payment_transaction.id
+                    - payment_transaction.paymentMethod
+                    - payment_transaction.amount
+                    - payment_transaction.entityClass
+                    - payment_transaction.currency
+                    - payment_transaction.reference
+                    - payment_transaction.createdAt
+                    - c.name as customerName
+                    - payment_transaction.successful as successful
+
+                from:
+                    - { table: %oro_payment.entity.payment_transaction.class%, alias: payment_transaction }
+
+                join:
+                    left:
+                        - { join: "Oro\\Bundle\\CustomerBundle\\Entity\\Customer", alias: c, conditionType: WITH, condition: "payment_transaction.entityIdentifier = c.id AND payment_transaction.entityClass='Oro\\Bundle\\CustomerBundle\\Entity\\Customer'" }
+
+                where:
+                    and:
+                        - payment_transaction.successful = '1'
+                        - payment_transaction.action = 'credit'
+                        - payment_transaction.entityClass = 'Oro\Bundle\CustomerBundle\Entity\Customer'
+
+        columns:
+            id:
+                label: oro.payment.paymenttransaction.id.label
+            customerName:
+                label: "Client"
+            paymentMethod:
+                label: "Mode de paiement"
+            reference:
+                label: "Référence"
+            amount:
+                label: "Montant"
+                type: twig
+                frontend_type: html
+                template: OroPaymentBundle:PaymentTransaction:Datagrid/price.html.twig
+            entityClass:
+                label: "Type"
+                renderable: false
+            createdAt:
+                label: "Date"
+                frontend_type: datetime
+
+        actions:
+            process_transaction:
+                type:          ajax
+                label:         "Enregistrement de la transaction"
+                link:          process_link
+                icon:          gears
+                rowAction:     false
+            delete:
+                type:          ajax
+                label:         "Suppression de la transaction"
+                link:          delete_link
+                icon:          trash
+                rowAction:     false
+            unprocess_transaction:
+                type:          ajax
+                label:         "Annulation de la transaction"
+                link:          unprocess_link
+                icon:          close
+                rowAction:     false
+
+        properties:
+            id: ~
+            process_link:
+                route: gescom.transaction_process
+                params: [ id ]
+                type:   url
+            unprocess_link:
+                route: gescom.transaction_unprocess
+                params: [ id ]
+                type:   url
+            delete_link:
+                route: gescom.transaction_delete
+                params: [ id ]
+                type:   url
+
+        sorters:
+            columns:
+                id:
+                    data_name: payment_transaction.id
+                paymentMethod:
+                    data_name: payment_transaction.paymentMethod
+                createdAt:
+                    data_name: payment_transaction.createdAt
+                reference:
+                    data_name: payment_transaction.reference
+                customerName:
+                    data_name: c.name
+
+            default:
+                id: DESC
+
+        filters:
+            columns:
+                customerName:
+                    type:      string
+                    data_name: c.name
+                reference:
+                    type:      string
+                    data_name: payment_transaction.reference
+                createdAt:
+                    type:      date
+                    data_name: payment_transaction.createdAt
+                paymentMethod:
+                    type:      choice
+                    data_name: payment_transaction.paymentMethod
+                    options:
+                        field_options:
+                            multiple: true
+                            choices:
+                                cheque: "Chèque"
+                                carte: "Carte bleue"
+                                virement: "Virement bancaire"
+                                especes: "Espèces"
+                amount:
+                    type:      currency
+                    data_name: payment_transaction.amount
+                entityClass:
+                    type:      string
+                    data_name: payment_transaction.entityClass
+                orderStatus:
+                    type:      choice
+                    data_name: internalStatus.name
+                    options:
+                        field_options:
+                            multiple: true
+                            choices:
+                                cancelled: "Annulée"
+                                closed: "Terminée"
+                                open: "En cours"
+
+
+
+    gescom-pending-payments-grid:
+        options:
+            entityHint: payment_transaction
+            export: true
+        source:
+            type: orm
+            query:
+                select:
+                    - payment_transaction.id
+                    - payment_transaction.paymentMethod
+                    - payment_transaction.amount
+                    - payment_transaction.entityClass
+                    - payment_transaction.currency
+                    - payment_transaction.reference
+                    - payment_transaction.createdAt
+                    - c.name as customerName
+                    - o.poNumber as orderIdentifier
+                    #- o.due_amount as dueAmount
+                    - internalStatus.name as orderStatus
+                    - payment_transaction.successful as successful
+                from:
+                    - { table: %oro_payment.entity.payment_transaction.class%, alias: payment_transaction }
+
+                join:
+                    left:
+                        - { join: "Oro\\Bundle\\OrderBundle\\Entity\\Order", alias: o, conditionType: WITH, condition: "payment_transaction.entityIdentifier = o.id AND payment_transaction.entityClass='Oro\\Bundle\\OrderBundle\\Entity\\Order'" }
+                        - { join: o.internal_status, alias: internalStatus }
+                        - { join: o.customer, alias: c }
+
+                where:
+                    and:
+                        - payment_transaction.successful = '1'
+                        - payment_transaction.active = '1'
+                        - payment_transaction.entityClass = 'Oro\Bundle\OrderBundle\Entity\Order'
+
+        columns:
+            id:
+                label: oro.payment.paymenttransaction.id.label
+            customerName:
+                label: "Client"
+            orderIdentifier:
+                label: "Commande"
+            orderStatus:
+                label: "Statut"
+                renderable: false
+            amount:
+                label: "Total"
+                type: twig
+                frontend_type: html
+                template: OroPaymentBundle:PaymentTransaction:Datagrid/price.html.twig
+            #dueAmount:
+            #    label: "Restant dû"
+            entityClass:
+                label: "Type"
+                renderable: false
+            createdAt:
+                label: "Date"
+                frontend_type: datetime
+
+
+
+    gescom-transactions-user-grid:
+        extends: gescom-transactions-grid
+        source:
+            query:
+                where:
+                    and:
+                        - payment_transaction.entityId = :customerId
+
+
+    gescom-base-orders-grid:
+        acl_resource: oro_order_view
+        extends: base-orders-grid
+        source:
+            query:
+                select:
+                    - order1.id as orderId
+                    - order1.sourceEntityClass
+                    - CONCAT(order_owner.firstName, ' ', order_owner.lastName) as owner
+                    - CONCAT(customerUser.firstName, ' ', customerUser.lastName) as customerUserName
+                    - customer.name as customerName
+                    - order1.sourceEntityClass
+                    - order1.sourceEntityId
+                    - order1.sourceEntityIdentifier
+                    - order1.totalDiscountsAmount
+                    #- order1.due_amount as dueAmount
+                    - internalStatus.name as internalStatusName
+                    - internalStatus.id as internalStatusId
+                    - customer.id as customerId
+                    - customerUser.email as customerUserEmail
+                    - customerUser.email AS primaryEmail
+                    - customerUser.id as customerUserId
+                    - order1.poNumber as invoiceNumber
+                    - >
+                        (CASE WHEN order1.payment_due_date IS NOT NULL AND internalStatus.name <> 'closed' AND internalStatus.name <> 'cancelled' THEN
+                        (CASE WHEN DATE_DIFF(order1.payment_due_date, CURRENT_TIMESTAMP()) < 0 THEN 'retard' ELSE 'enattente' END)
+                        ELSE '' END) as row_class_name
+                #where:
+                #    and:
+                #        - internalStatus.name <> 'cancelled'
+
+                join:
+                    left:
+                        - { join: order1.owner, alias: order_owner }
+                        - { join: order1.customerUser, alias: customerUser }
+                        - { join: order1.customer, alias: customer }
+                        - { join: order1.internal_status, alias: internalStatus }
+                        #- { join: '%oro_payment.entity.payment_status.class%', alias: payment_status, conditionType: WITH, condition: "payment_status.entityIdentifier = o.id AND payment_status.entityClass = '%oro_order.entity.order.class%'" }
+        columns:
+            identifier:
+                label:         oro.order.identifier.label
+                frontend_type: html
+                type: twig
+                template: 'NmdevGescomBundle:GescomOrders:Datagrid/orderNumber.html.twig'
+            invoiceNumber:
+                label:         oro.order.po_number.label
+                frontend_type: html
+                type: twig
+                template: 'NmdevGescomBundle:GescomOrders:Datagrid/poNumber.html.twig'
+            customerName:
+                label:         oro.order.customer.label
+                frontend_type: html
+                type: twig
+                template: 'NmdevGescomBundle:GescomOrders:Datagrid/customer.html.twig'
+            customerUserName:
+                label:         oro.order.customer_user.label
+                frontend_type: html
+                type: twig
+                template: 'NmdevGescomBundle:GescomOrders:Datagrid/customerUser.html.twig'
+            #contact:
+            #    frontend_type: html
+            #    type: twig
+            #    template: 'NmdevPrestationBundle:PrestationAccount:Datagrid/contact.html.twig'
+
+            internalStatusName:
+                label: oro.order.internal_status.label
+                renderable: false
+            #owner:
+            #    label:         oro.order.owner.label
+            #shippingMethod:
+            #    label:         oro.order.shipping_method.label
+            #    type:          twig
+            #    frontend_type: html
+            #    template:      'OroOrderBundle:Order:Datagrid/shippingMethodFull.html.twig'
+            sourceEntityClass:
+                label:         oro.order.source_document.label
+                type:          twig
+                frontend_type: html
+                template:      OroOrderBundle:Order:Datagrid/sourceDocument.html.twig
+                renderable:    false
+            totalDiscountsAmount:
+                label:         oro.order.discount.label
+                type:          twig
+                frontend_type: html
+                template:      OroOrderBundle:Order:Datagrid/discount.html.twig
+                renderable: false
+            subtotal:
+                label:  oro.order.subtotal.label
+                frontend_type: multi-currency
+                type:          callback
+                callable:      ['@oro_currency.converter.currency_to_string', 'convert']
+                multicurrency_config:
+                    currency_field: currency
+                renderable: false
+            total:
+                label:  oro.order.total.label
+                frontend_type: multi-currency
+                type:          callback
+                callable:      ['@oro_currency.converter.currency_to_string', 'convert']
+                multicurrency_config:
+                    currency_field: currency
+            #due_amount:
+            #    label: "Montant restant"
+            #    renderable: true
+            #    frontend_type: multi-currency
+            #    type:          callback
+            #    callable:      ['@oro_currency.converter.currency_to_string', 'convert']
+            #    multicurrency_config:
+            #        currency_field: currency
+
+            #paymentStatus:
+            #    label:         oro.order.payment_status.label
+            #    type:          twig
+            #    frontend_type: html
+            #    template:      'OroOrderBundle:Order:Datagrid/paymentStatus.html.twig'
+            paymentMethods:
+                label: oro.order.payment_method.label
+                renderable: true
+                type: twig
+                template: 'OroOrderBundle:Order:Datagrid/paymentMethodAdmin.html.twig'
+                frontend_type: html
+                #renderable: false
+            createdAt:
+                label:         oro.ui.created_at
+                frontend_type: datetime
+            updatedAt:
+                label:         oro.ui.updated_at
+                frontend_type: datetime
+        sorters:
+            columns:
+                identifier:
+                    data_name: order1.identifier
+                subtotal:
+                    data_name: subtotal
+                total:
+                    data_name: total
+                customerName:
+                    data_name: customerName
+                customerUserName:
+                    data_name: customerUserName
+                internalStatusName:
+                    data_name: internalStatusName
+                totalDiscountsAmount:
+                    data_name: order1.totalDiscountsAmount
+                createdAt:
+                    data_name: order1.createdAt
+                updatedAt:
+                    data_name: order1.updatedAt
+            default:
+                createdAt: %oro_datagrid.extension.orm_sorter.class%::DIRECTION_DESC
+        filters:
+            columns:
+                identifier:
+                    type:      string
+                    data_name: order1.identifier
+                poNumber:
+                    type:      string
+                    data_name: order1.poNumber
+                subtotal:
+                    type:      currency
+                    data_name: subtotal
+                    enabled:   false
+                total:
+                    type:      currency
+                    data_name: total
+                customerName:
+                    type:      string
+                    data_name: customerName
+                customerUserName:
+                    type:      string
+                    data_name: customerUserName
+                totalDiscountsAmount:
+                    type:      number
+                    data_name: order1.totalDiscountsAmount
+                createdAt:
+                    type:      datetime
+                    data_name: order1.createdAt
+                updatedAt:
+                    type:      datetime
+                    data_name: order1.updatedAt
+
+        properties:
+            id: ~
+            row_class_name: ~
+            view_link:
+                route: oro_order_view
+            send_invoice_email_link:
+                route: gescom.send_invoice_email
+                params: [ id ]
+                type:   url
+            send_order_email_link:
+                route: gescom.send_order_email
+                params: [ id ]
+                type:   url
+            send_relance_email_link:
+                route: gescom.send_relance_email
+                params: [ id ]
+                type:   url
+            send_suspension_email_link:
+                route: gescom.send_relance_email
+                params: [ id ]
+                type:   url
+
+        actions:
+            view:
+                acl_resource:  oro_order_view
+                link:          view_link
+                rowAction:     true
+
+            #send_relance_email:
+            #    type:          ajax
+            #    label:         "Envoyer une relance de paiement"
+            #    link:          send_relance_email_link
+            #    icon:          bell
+            #    rowAction:     false
+            #send_suspension_email:
+            #    type:          ajax
+            #    label:         "Envoyer une relance avant supsension"
+            #    link:          send_suspension_email_link
+            #    icon:          bell-o
+            #    rowAction:     false
+            #send_invoice_email:
+            #    type:          ajax
+            #    label:         "Envoyer la facture par email"
+            #    link:          send_invoice_email_link
+            #    icon:          envelope
+            #    rowAction:     false
+
+
+        #action_configuration: ["@nmdev_gescom.datagrid.action_permission_provider", "getOrderProcessDefinitionPermissions"]
+
+        views_list: '@oro_order.datagrid.orders_view_list'
+        options:
+            actionsHideCount: 10
+            cellActionsHideCount: 10
+            export: true
+
+
+    gescom-orders-closed-grid:
+        extends: gescom-base-orders-grid
+        source:
+            query:
+                where:
+                    and:
+                        - internalStatus.name <> 'shipped'
+                        - internalStatus.name <> 'open'
+
+    gescom-orders-open-grid:
+        extends: gescom-base-orders-grid
+        source:
+            query:
+                where:
+                    and:
+                        - internalStatus.name <> 'cancelled'
+                        - internalStatus.name <> 'closed'
+
+
+    gescom-orders-bdc-grid:
+        extends: gescom-base-orders-grid
+        source:
+            query:
+                where:
+                    and:
+                        - internalStatus.name = 'open'
+
+
+        #        workflowStepLabelByWorkflow:
+        #            value:
+        #                - 'order_bdc'
+
+        #        workflowStepLabelByWorkflowStep:
+        #            value:
+        #                - '71'
+        #                - '76'
+
+        #actions:
+        #    create_invoice:
+        #        type:          ajax
+        #        label:         "Générer la facture"
+        #        link:          create_invoice_link
+        #        icon:          forward
+        #        defaultMessages:
+        #            confirm_content: "Etes-vous certain de vouloir générer la facture ?"
+        #            confirm_title: "Confirmation"
+        #            confirm_ok: "Facturer"
+        #            confirm_cancel: "Annuler"
+        #        rowAction:     false
+
+        #    send_order_email:
+        #        type:          ajax
+        #        label:         "Envoyer le bon de commande par email"
+        #        link:          send_order_email_link
+        #        icon:          envelope
+        #        rowAction:     false
+
+
+        properties:
+            id: ~
+            #create_invoice_link:
+            #    route: gescom.generate_invoice
+            #    params: [ id ]
+            #    type:   url
+
+
+
+    gescom-orders-user-grid:
+        extends: gescom-orders-grid
+        source:
+            query:
+                where:
+                    and:
+                        - payment_transaction.entityId = :customerId
+
+
+    gescom-invoices-grid:
+        source:
+            type: orm
+            query:
+                select:
+                    - invoice.id
+                    - invoice.invoiceNumber
+                    - invoice.paymentDueDate
+                    - invoice.poNumber
+                    - invoice.subtotal
+                    - payment_status.paymentStatus
+                    - o.id as orderId
+                from:
+                    - { table: OroInvoiceBundle:Invoice, alias: invoice }
+
+                join:
+                    left:
+                        - { join: 'Oro\Bundle\OrderBundle\Entity\Order', alias o, conditionType: WITH, condition: "invoice.poNumber = o.poNumber" }
+                        - { join: '%oro_payment.entity.payment_status.class%', alias: payment_status, conditionType: WITH, condition: "payment_status.entityIdentifier = o.id AND payment_status.entityClass = '%oro_order.entity.order.class%'" }
+                        #- { join: 'Oro\Bundle\CustomerBundle\Entity\Customer', alias c, conditionType: WITH, condition: "payment_transaction.entityIdentifier = c.id" }
+
+        columns:
+            #id:
+            #    label: "ID"
+            invoiceNumber:
+                label: "Numéro de facture"
+            orderId:
+                label: "Order ID"
+            poNumber:
+                label: "Numéro de commande"
+            paymentDueDate:
+                label: "Date de paiement"
+                frontend_type: datetime
+            subtotal:
+                label: "Total"
+            paymentStatus:
+                label:         oro.order.payment_status.label
+                type:          twig
+                frontend_type: html
+                template:      'OroOrderBundle:Order:Datagrid/paymentStatus.html.twig'
+
+        properties:
+            id: ~
+        sorters:
+            columns:
+            #id:
+            #    data_name: payment_transaction.id
+            #balance:
+            #    data_name: cb.balance
+            #currentPurchaseAmount:
+            #    data_name: cb.currentPurchaseAmount
+            #default:
+            #id: DESC
+
+
+    gescom-invoices-pending:
+        extends: gescom-base-orders-grid
+        source:
+            query:
+                where:
+                    and:
+                        - payment_status.paymentStatus != 'full'
+
+    gescom-balances-grid:
+        options:
+            export: true
+        #    entityHint: customer_balance
+        source:
+            type: orm
+            query:
+                select:
+                    - cb.id
+                    - cb.balance
+                    - cb.creditLimit
+                    - cb.currentPurchaseAmount
+                    - c.name as customerName
+
+                from:
+                    - { table: NmdevGescomBundle:CustomerBalance, alias: cb }
+
+                join:
+                    left:
+                        - { join: cb.customer, alias: c }
+
+        columns:
+            #id:
+            #    label: "ID"
+            customerName:
+                label: "Client"
+            balance:
+                label: "Solde"
+            currentPurchaseAmount:
+                label: "Total commandes"
+            creditLimit:
+                label: "Limite crédit"
+
+
+        properties:
+            id: ~
+        sorters:
+            columns:
+                #id:
+                #    data_name: payment_transaction.id
+                balance:
+                    data_name: cb.balance
+                currentPurchaseAmount:
+                    data_name: cb.currentPurchaseAmount
+                #default:
+                #id: DESC
+
+        filters:
+            columns:
+                customerName:
+                    data_name: c.name
+                    type:      string
+                balance:
+                    data_name: cb.balance
+                    type:      number
+
+
+
+    gescom-document-base:
+        source:
+            type: orm
+            query:
+                select:
+                    - gd.id
+                    - gd.identifier
+                    - gd.draft
+                    - gd.sent
+                    - gd.createdAt
+                    - o.totalValue as total
+                    - c.name as customerName
+                    - c.id as customerId
+
+                from:
+                    - { table: NmdevGescomBundle:GescomDocument, alias: gd }
+
+                join:
+                    left:
+                        - { join: gd.order, alias: o }
+                        - { join: o.customer, alias: c }
+
+        columns:
+            id:
+                label: "ID"
+                renderable: false
+            customerName:
+                label: "Client"
+            identifier:
+                label: "Document"
+                frontend_type: html
+                type: twig
+                template: 'NmdevGescomBundle:GescomDocument:Datagrid/view.html.twig'
+            draft:
+                label: "Brouillon"
+            sent:
+                label: "Envoyé"
+            createdAt:
+                label: "Créé le"
+                frontend_type: datetime
+            total:
+                label: "Total"
+
+        properties:
+            id: ~
+
+        #sorters:
+        #    columns:
+                #id:
+                #    data_name: gd.id
+                #balance:
+                #    data_name: cb.balance
+
+                #default:
+                #    id: DESC
+
+        filters:
+            columns:
+                customerName:
+                    data_name: c.name
+                    type:      string
+                identifier:
+                    data_name: gd.identifier
+                    type:      string
+
+
+    gescom-document-invoices:
+        extends: gescom-document-base
+        source:
+            query:
+                where:
+                    and:
+                        - gd.type = 'invoice'
+
+
+    gescom-document-purchases:
+        extends: gescom-document-base
+        source:
+            query:
+                where:
+                    and:
+                        - gd.type = 'purchase'
+
+
+    gescom-product-sales-grid:
+        options:
+            export: true
+        acl_resource: oro_order_view
+        source:
+            type: orm
+            query:
+                select:
+                    - oli.productSku
+                    - oli.productName
+                    - o.createdAt
+                    - c.name as customerName
+                    - c.id as customerId
+                    - oli.value
+                    - o.totalValue as orderTotalValue
+                    #- o.due_amount as dueAmount
+                    - o.id as orderId
+
+                from:
+                    - { table: OroOrderBundle:OrderLineItem, alias: oli }
+
+                join:
+                    left:
+                        - { join: oli.order, alias: o }
+                        - { join: o.customer, alias: c }
+
+        columns:
+            productSku:
+                label:         "SKU"
+            productName:
+                label:         "Produit"
+            customerName:
+                label:         oro.order.customer.label
+                frontend_type: html
+                type: twig
+                template: 'NmdevGescomBundle:GescomOrders:Datagrid/customer.html.twig'
+            orderId:
+                label:         "#ID"
+                renderable: false
+            value:
+                label: "Prix de vente"
+            createdAt:
+                label: "Date de la commande"
+                frontend_type: datetime
+            orderTotalValue:
+                label:         "Total"
+            #dueAmount:
+            #    label: "Montant dû"
+
+
+        sorters:
+            columns:
+                productSku:
+                    data_name: oli.productSku
+                productName:
+                    data_name: oli.productName
+                customerName:
+                    data_name: customerName
+                createdAt:
+                    data_name: o.createdAt
+
+            default:
+                createdAt: %oro_datagrid.extension.orm_sorter.class%::DIRECTION_DESC
+
+        filters:
+            columns:
+                productSku:
+                    type:      string
+                    data_name: oli.productSku
+                productName:
+                    type:      string
+                    data_name: oli.productName
+                customerName:
+                    type:      string
+                    data_name: customerName
+                createdAt:
+                    type:      datetime
+                    data_name: o.createdAt
+
+
+        #properties:
+        #    id: ~
+        #    view_link:
+        #        route: oro_order_view
+        #        params: [ orderId ]
+
+        #actions:
+        #    view:
+        #        acl_resource:  oro_order_view
+        #        link:          view_link
+        #        rowAction:     true
+
+    gescom-product-sales-user-grid:
+        extends: gescom-product-sales-grid
+        source:
+            query:
+                where:
+                    and:
+                        - c.id = :customerId
+            bind_parameters:
+                - customerId
+
+                        
+                        
+    gescom-documents-user-grid:
+        extends: gescom-document-base
+        source:
+            query:
+                where:
+                    and:
+                        - c.id = :customerId
+            bind_parameters:
+                - customerId
+    

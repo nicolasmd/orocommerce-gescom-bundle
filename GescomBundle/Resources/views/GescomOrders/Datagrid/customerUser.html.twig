@@ -1,0 +1,4 @@
+{% set customerName = record.getValue('customerUserName') %}
+{% set customerId = record.getValue('customerUserId') %}
+
+<a href="/admin/customer/user/view/{{ customerId }}" target="_blank">{{ customerName }}</a>

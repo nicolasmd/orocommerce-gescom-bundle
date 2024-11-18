@@ -1,0 +1,215 @@
+system_configuration:
+    groups:
+        nmdev_gescom_settings:
+            title:  'Gestion commerciale'
+            icon: fa-money
+
+        nmdev_gescom_configuration_settings:
+            title:  'Configuration'
+
+        nmdev_gescom_email_settings:
+            title:  'Gestion des emails'
+
+    fields:
+        nmdev_gescom.supervision_url:
+            data_type: string
+            type: 'Symfony\Component\Form\Extension\Core\Type\TextType'
+            options:
+                label:  'Url de supervision'
+
+        nmdev_gescom.order_id:
+            data_type: string
+            type: 'Symfony\Component\Form\Extension\Core\Type\TextType'
+            options:
+                label:  'Increment bon de commande'
+
+        nmdev_gescom.invoice_id:
+            data_type: string
+            type: 'Symfony\Component\Form\Extension\Core\Type\TextType'
+            options:
+                label:  'Increment facturation'
+
+        nmdev_gescom.quote_id:
+            data_type: string
+            type: 'Symfony\Component\Form\Extension\Core\Type\TextType'
+            options:
+                label:  'Increment devis'
+
+        nmdev_gescom.credit_id:
+            data_type: string
+            type: 'Symfony\Component\Form\Extension\Core\Type\TextType'
+            options:
+                label:  'Increment avoir'
+
+        nmdev_gescom.order_prefix:
+            data_type: string
+            type: 'Symfony\Component\Form\Extension\Core\Type\TextType'
+            options:
+                label:  'Préfixe bon de commande'
+
+        nmdev_gescom.invoice_prefix:
+            data_type: string
+            type: 'Symfony\Component\Form\Extension\Core\Type\TextType'
+            options:
+                label:  'Préfixe facture'
+
+        nmdev_gescom.quote_prefix:
+            data_type: string
+            type: 'Symfony\Component\Form\Extension\Core\Type\TextType'
+            options:
+                label:  'Préfixe devis'
+
+        nmdev_gescom.credit_prefix:
+            data_type: string
+            type: 'Symfony\Component\Form\Extension\Core\Type\TextType'
+            options:
+                label:  'Préfixe avoir'
+
+        nmdev_gescom.client_code:
+            data_type: string
+            type: 'Symfony\Component\Form\Extension\Core\Type\TextType'
+            options:
+                label:  'Code client'
+
+        nmdev_gescom.mode:
+            data_type: string
+            type: 'Symfony\Component\Form\Extension\Core\Type\ChoiceType'
+            options:
+                label:  'Environnement'
+                required: true
+                constraints:
+                    - NotBlank: ~
+                choices:
+                    test: "Mode test"
+                    prod: "Mode production"
+
+        nmdev_gescom.email_test:
+            data_type: string
+            type: 'Symfony\Component\Form\Extension\Core\Type\TextType'
+            options:
+                label:  'Destinataires mode test'
+                tooltip: 'En mode test les emails ne sont pas envoyés sur les emails des clients. Séparer par des points-virgules pour indiquer plusieurs destinataires.'
+
+        nmdev_gescom.sender_email:
+            data_type: string
+            type: 'Symfony\Component\Form\Extension\Core\Type\TextType'
+            options:
+                label:  'Email expéditeur'
+
+        nmdev_gescom.email_quote_send:
+            data_type: string
+            type: 'Oro\Bundle\EmailBundle\Form\Type\SystemEmailTemplateSelectType'
+            options:
+                label:  'Envoi du devis'
+                #class: 'OroEmailBundle:EmailTemplate'
+                choice_value: 'name'
+                #configs:
+                #    placeholder: 'Veuillez sélectionner'
+
+        nmdev_gescom.email_quote_relaunch:
+            data_type: string
+            type: 'Oro\Bundle\EmailBundle\Form\Type\SystemEmailTemplateSelectType'
+            options:
+                label:  'Relance du devis'
+                #class: 'OroEmailBundle:EmailTemplate'
+                choice_value: 'name'
+                #configs:
+                #    placeholder: 'Veuillez sélectionner'
+
+
+        nmdev_gescom.email_order_send:
+            data_type: string
+            type: 'Oro\Bundle\EmailBundle\Form\Type\SystemEmailTemplateSelectType'
+            options:
+                label:  'Envoi du bon de commande'
+                #class: 'OroEmailBundle:EmailTemplate'
+                choice_value: 'name'
+                #configs:
+                #    placeholder: 'Veuillez sélectionner'
+
+        nmdev_gescom.email_invoice_send:
+            data_type: string
+            type: 'Oro\Bundle\EmailBundle\Form\Type\SystemEmailTemplateSelectType'
+            options:
+                label:  'Envoi de la facture'
+                #class: 'OroEmailBundle:EmailTemplate'
+                choice_value: 'name'
+                #configs:
+                #    placeholder: 'Veuillez sélectionner'
+
+        nmdev_gescom.email_payment_pending:
+            data_type: string
+            type: 'Oro\Bundle\EmailBundle\Form\Type\SystemEmailTemplateSelectType'
+            options:
+                label:  'Attente de paiement'
+                #class: 'OroEmailBundle:EmailTemplate'
+                choice_value: 'name'
+                #configs:
+                #    placeholder: 'Veuillez sélectionner'
+
+        nmdev_gescom.email_payment_first_after:
+            data_type: string
+            type: 'Oro\Bundle\EmailBundle\Form\Type\SystemEmailTemplateSelectType'
+            options:
+                label:  'Relance de paiement'
+                #class: 'OroEmailBundle:EmailTemplate'
+                choice_value: 'name'
+                #configs:
+                #    placeholder: 'Veuillez sélectionner'
+
+        nmdev_gescom.email_payment_second_after:
+            data_type: string
+            type: 'Oro\Bundle\EmailBundle\Form\Type\SystemEmailTemplateSelectType'
+            options:
+                label:  'Dernière relance de paiement'
+                #class: 'OroEmailBundle:EmailTemplate'
+                choice_value: 'name'
+                #configs:
+                #    placeholder: 'Veuillez sélectionner'
+
+        nmdev_gescom.email_customer_balance_send:
+            data_type: string
+            type: 'Oro\Bundle\EmailBundle\Form\Type\SystemEmailTemplateSelectType'
+            options:
+                label:  'Informations sur la balance du client'
+                #class: 'OroEmailBundle:EmailTemplate'
+                choice_value: 'name'
+                #configs:
+                #    placeholder: 'Veuillez sélectionner'
+
+
+    tree:
+        system_configuration:
+            platform:
+                children:
+                    general_setup:
+                        children:
+                            nmdev_gescom_settings:
+                                children:
+                                    nmdev_gescom_configuration_settings:
+                                        children:
+                                            - nmdev_gescom.supervision_url
+                                            - nmdev_gescom.mode
+                                            - nmdev_gescom.client_code
+                                            - nmdev_gescom.quote_id
+                                            - nmdev_gescom.quote_prefix
+                                            - nmdev_gescom.order_id
+                                            - nmdev_gescom.order_prefix
+                                            - nmdev_gescom.invoice_id
+                                            - nmdev_gescom.invoice_prefix
+                                            - nmdev_gescom.credit_id
+                                            - nmdev_gescom.credit_prefix
+                                            - nmdev_gescom.email_test
+
+
+                                    nmdev_gescom_email_settings:
+                                        children:
+                                            - nmdev_gescom.sender_email
+                                            - nmdev_gescom.email_quote_send
+                                            - nmdev_gescom.email_quote_relaunch
+                                            - nmdev_gescom.email_order_send
+                                            - nmdev_gescom.email_invoice_send
+                                            - nmdev_gescom.email_payment_pending
+                                            - nmdev_gescom.email_payment_first_after
+                                            - nmdev_gescom.email_payment_second_after
+                                            - nmdev_gescom.email_customer_balance_send
